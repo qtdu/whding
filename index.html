@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gửi DingTalk qua Netlify API</title>
+  <style>
+    body { font-family: sans-serif; margin: 40px; max-width: 600px; }
+    input, textarea { width: 100%; padding: 8px; margin: 8px 0; }
+    button { padding: 8px 16px; margin-top: 8px; }
+    pre { background: #f5f5f5; padding: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Trang nội bộ - Gửi DingTalk qua Netlify API</h2>
+
+  <label>Token DingTalk (access_token):</label>
+  <input id="token" placeholder="Nhập token webhook DingTalk" />
+
+  <label>Nội dung tin nhắn:</label>
+  <textarea id="message" rows="3">Xin chào từ máy nội bộ!</textarea>
+
+  <button id="sendBtn">Gửi DingTalk</button>
+  <pre id="log"></pre>
+
+  <script>
+    const apiUrl = "https://whding.netlify.app/.netlify/functions/sendWebhook";
+
+    document.getElementById("sendBtn").onclick = async () => {
+      const token = document.getElementById("token").value.trim();
+      const message = document.getElementById("message").value.trim();
+      const log = document.getElementById("log");
+
+      if (!token) {
+        log.textContent = "⚠️ Vui lòng nhập token webhook DingTalk.";
+        return;
+      }
+
+      log.textContent = "⏳ Đang gửi...";
+
+      try {
+        const res = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, message }),
+        });
+        const data = await res.json();
+        log.textContent = "✅ Kết quả:\n" + JSON.stringify(data, null, 2);
+      } catch (err) {
+        log.textContent = "❌ Lỗi: " + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
